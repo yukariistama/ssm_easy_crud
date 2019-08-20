@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+
+    <context:component-scan base-package="cn.ysy.ssmeasycrud.service"></context:component-scan>
+
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:sqlMapConfig.xml"></property>
+        <property name="typeAliasesPackage" value="cn.ysy.ssmeasycrud.domain"></property>
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.ysy.ssmeasycrud.dao"></property>
+    </bean>
+
+
+    <!--事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
+
+    <!--
+
+       isolation隔离级别  不考虑隔离级别   会引发脏读   幻读、虚读   不可重复度
+           mysql       REPEATABLE_READ
+           oracle      READ_COMMITTED
+       propagation传播行为 解决是service调用另外一个service事务怎么传播
+           REQUIRED   如果当前方法有事务 就采用当前事务，如果当前没事务，就开启一个新的
+           SUPPORTS    如果当前方法有事务 就采用当前事务，如果当前没事务，那就以非事务运行
+
+       -->
+
+    <!--  <tx:advice id="TestAdvice" transaction-manager="transactionManager">
+          <tx:attributes>
+              <tx:method name="save*"  propagation="REQUIRED" isolation="READ_COMMITTED"/>
+              <tx:method name="del*" propagation="REQUIRED"/>
+              <tx:method name="update*" propagation="REQUIRED"/>
+              <tx:method name="add*" propagation="REQUIRED"/>
+              <tx:method name="find*" propagation="SUPPORTS"/>
+              <tx:method name="get*" propagation="SUPPORTS"/>
+          </tx:attributes>
+      </tx:advice>
+      <aop:config>
+          <aop:pointcut id="allTestServiceMethod" expression="execution(* com.itheima.service.*.*(..))"/>
+          <aop:advisor pointcut-ref="allTestServiceMethod" advice-ref="TestAdvice" />
+      </aop:config>-->
+
+</beans>

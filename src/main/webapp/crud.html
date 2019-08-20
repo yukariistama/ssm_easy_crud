@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script src="angular.min.js"></script>
+
+    <script>
+        var app = angular.module("crud",[]);
+
+
+        //查询全部
+        app.controller("crudController",function ($scope,$http) {
+            // $scope.textList={'textList':[{'id':1,'upperCase':'A','lowerCase':'b','number':'6','other':'天'},
+            //                 {'id':1,'upperCase':'A','lowerCase':'b','number':'6','other':'天'}]};
+            $scope.findAll=function () {
+                $http.get('/crud/findAll').success(
+                    function (response) {
+                        $scope.textList=response;
+                    }
+                );
+            }
+
+            //增加
+            $scope.input=function (text) {
+                $http.get('/crud/add?text='+$scope.text).success(
+                    function (response) {
+                        alert(response);
+                        $scope.findAll();
+                    }
+                );
+                
+            }
+            //删除
+            $scope.del=function (id) {
+                $http.get('crud/del?id='+id).success(
+                    function (res) {
+                        alert(res);
+                        $scope.findAll();
+                    }
+                );
+            }
+            //选中修改行
+            $scope.choose=function(thiscrud){
+                $scope.ccrud=thiscrud;
+            }
+            //修改
+            $scope.update=function(ccrud){
+                $http.post('crud/update',ccrud).success(
+                    function (res) {
+                        alert(res);
+                        $scope.findAll();
+                    }
+                );
+            }
+
+        });
+
+
+    </script>
+</head>
+<body ng-app="crud" ng-controller="crudController" ng-init="findAll()">
+
+<h1>SSM-CRUD</h1>
+<form>
+    <input placeholder="请输入..." ng-model="text">
+    <button ng-click="input()">提交</button>
+</form>
+<br/>
+<br/>
+{{textList}}
+<br/>
+<table border="1px">
+    <tr >
+        <td width="50" height="30">ID</td>
+        <td width="80" height="30">大写字母</td>
+        <td width="80" height="30">小写字母</td>
+        <td width="80" height="30">数字类型</td>
+        <td width="80" height="30">其他字符</td>
+        <td width="80" height="30">删除</td>
+        <td width="80" height="30">修改</td>
+    </tr>
+    <tr ng-repeat="crud in textList">
+        <td width="50" height="30" ng-bind="{{crud.id}}"></td>
+        <td width="80" height="30" >{{crud.upperCase}}</td>
+        <td width="80" height="30">{{crud.lowerCase}}</td>
+        <td width="80" height="30">{{crud.number}}</td>
+        <td width="80" height="30">{{crud.other}}</td>
+        <td width="80" height="30"><button ng-click="del(crud.id)">删除</button></td>
+        <td width="80" height="30"><button ng-click="choose(crud)">修改</button></td>
+    </tr>
+</table>
+<br/>
+<br/>
+<br/>
+<h1>修改</h1>
+<table border="1px">
+<tr>
+<td width="50" height="30" ><input ng-model="ccrud.id" disabled="disabled"></td>
+<td width="80" height="30" ><input ng-model="ccrud.upperCase"></td>
+<td width="80" height="30"><input ng-model="ccrud.lowerCase"></td>
+<td width="80" height="30"><input ng-model="ccrud.number"></td>
+<td width="80" height="30"><input ng-model="ccrud.other"></td>
+<td width="80" height="30"><button ng-click="update(ccrud)">确认</button></td>
+</tr>
+</table>
+<script>
+
+
+</script>
+</body>
+</html>
